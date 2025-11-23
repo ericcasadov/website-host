@@ -173,7 +173,7 @@ class ReconstructionProcessor(threading.Thread):
         vis.create_window(window_name="3D Reconstruction (Background)", width=1200, height=600, visible=False) 
         opt = vis.get_render_option()
         opt.background_color = np.array([0,0,0])
-        vis.add_geometry(o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.25))
+        vis.add_geometry(o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.75).paint_uniform_color([0,0,0]))
         
         view_control = vis.get_view_control()
         view_control.set_zoom(0.2); view_control.set_front([0.5, 0.5, -1]); view_control.set_lookat([0, 0, 0]); view_control.set_up([-0.1, -0.9, 0.1])
