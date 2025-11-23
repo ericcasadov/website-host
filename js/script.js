@@ -1,4 +1,4 @@
-// Esperar a que carregui tot
+// script.js - VERSIÓ MILLORADA
 document.addEventListener('DOMContentLoaded', function() {
     // Elements
     const botonEntrar = document.getElementById('entrar-portal');
@@ -6,22 +6,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const paginaPrincipal = document.getElementById('pagina-principal');
     const paginaPortal = document.getElementById('pagina-portal');
 
-
-    //STREAMS
+    // STREAMS - URLs dinàmiques basades en la ubicació actual
     const streamReal = document.getElementById('stream-real');
     const streamVirtual = document.getElementById('stream-virtual');
-    const STREAM_REAL_URL = "https://mi-portal.loca.lt/video_feed_real";
-    const STREAM_VIRTUAL_URL = "https://mi-portal.loca.lt/video_feed_virtual";
+    
+    // Obtenir el domini actual i construir URLs relatives
+    const baseUrl = window.location.origin.replace(/:\d+$/, ':8080');
+    const STREAM_REAL_URL = `${baseUrl}/video_feed_real`;
+    const STREAM_VIRTUAL_URL = `${baseUrl}/video_feed_virtual`;
+    
     let streamsActius = false;
 
-    
     // Funcio per a entrar al portal
     botonEntrar.addEventListener('click', function() {
-        // Ocultem la pagina inicial i mostrem la oculta
         paginaPrincipal.classList.remove('pagina-activa');
         paginaPrincipal.classList.add('pagina-oculta');
-        
-        // La pagina inicial passa a anar on la pagina oculta
         paginaPortal.classList.remove('pagina-oculta');
         paginaPortal.classList.add('pagina-activa');
         iniciarStreams();
@@ -29,11 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Función para volver al inicio
     botonTornar.addEventListener('click', function() {
-        // Ocultar página del portal
         paginaPortal.classList.remove('pagina-activa');
         paginaPortal.classList.add('pagina-oculta');
-        
-        // Mostrar página principal
         paginaPrincipal.classList.remove('pagina-oculta');
         paginaPrincipal.classList.add('pagina-activa');
         aturarStreams();
@@ -41,11 +37,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function iniciarStreams(){
         if(!streamsActius){
-            streamReal.src = STREAM_REAL_URL;
-            streamVirtual.src = STREAM_VIRTUAL_URL;
+            console.log('Iniciant streams des de:', baseUrl);
+            
+            // Afegir timestamp per evitar cache
+            const timestamp = new Date().getTime();
+            streamReal.src = `${STREAM_REAL_URL}?t=${timestamp}`;
+            streamVirtual.src = `${STREAM_VIRTUAL_URL}?t=${timestamp}`;
 
-            stream-real.classList.remove('error-stream');
-            stream-virtual.classList.remove('error-stream');
+            // CORRECCIÓ: IDs correctes
+            streamReal.classList.remove('error-stream');
+            streamVirtual.classList.remove('error-stream');
 
             streamsActius = true;
         }
@@ -57,13 +58,37 @@ document.addEventListener('DOMContentLoaded', function() {
         streamsActius = false;
     }
 
+    // Gestió d'errors millorada
     streamReal.addEventListener('error', function() {
-        console.error('Error carregant stream real');
+        console.error('Error carregant stream real:', STREAM_REAL_URL);
         streamReal.classList.add('error-stream');
+        // Reintentar després de 3 segons
+        setTimeout(() => {
+            if(streamsActius) {
+                streamReal.src = `${STREAM_REAL_URL}?t=${new Date().getTime()}`;
+            }
+        }, 3000);
     });
 
     streamVirtual.addEventListener('error', function() {
-        console.error('Error carregant stream virtual');
+        console.error('Error carregant stream virtual:', STREAM_VIRTUAL_URL);
         streamVirtual.classList.add('error-stream');
+        // Reintentar després de 3 segons
+        setTimeout(() => {
+            if(streamsActius) {
+                streamVirtual.src = `${STREAM_VIRTUAL_URL}?t=${new Date().getTime()}`;
+            }
+        }, 3000);
+    });
+
+    // Event per quan els streams es carreguen correctament
+    streamReal.addEventListener('load', function() {
+        streamReal.classList.remove('error-stream');
+        console.log('Stream real carregat correctament');
+    });
+
+    streamVirtual.addEventListener('load', function() {
+        streamVirtual.classList.remove('error-stream');
+        console.log('Stream virtual carregat correctament');
     });
 });
