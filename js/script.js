@@ -6,15 +6,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const paginaPrincipal = document.getElementById('pagina-principal');
     const paginaPortal = document.getElementById('pagina-portal');
 
-
-    //STREAMS
+    // STREAMS
     const streamReal = document.getElementById('stream-real');
     const streamVirtual = document.getElementById('stream-virtual');
-    const STREAM_REAL_URL = "https://mi-portal.loca.lt/video_feed_real";
-    const STREAM_VIRTUAL_URL = "https://mi-portal.loca.lt/video_feed_virtual";
+    
+    // IMPORTANTE: Cambia estas URLs por la que te da LocalTunnel
+    const STREAM_REAL_URL = "http://localhost:8080/video_feed_real";
+    const STREAM_VIRTUAL_URL = "http://localhost:8080/video_feed_virtual";
+    
     let streamsActius = false;
 
-    
     // Funcio per a entrar al portal
     botonEntrar.addEventListener('click', function() {
         // Ocultem la pagina inicial i mostrem la oculta
@@ -41,8 +42,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function iniciarStreams(){
         if(!streamsActius){
-            streamReal.src = STREAM_REAL_URL;
-            streamVirtual.src = STREAM_VIRTUAL_URL;
+            console.log("Iniciando streams...");
+            
+            // Añadir timestamp para evitar cache
+            const timestamp = new Date().getTime();
+            streamReal.src = `${STREAM_REAL_URL}?t=${timestamp}`;
+            streamVirtual.src = `${STREAM_VIRTUAL_URL}?t=${timestamp}`;
 
             streamReal.classList.remove('error-stream');
             streamVirtual.classList.remove('error-stream');
@@ -58,12 +63,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     streamReal.addEventListener('error', function() {
-        console.error('Error carregant stream real');
+        console.error('Error cargando stream real');
         streamReal.classList.add('error-stream');
     });
 
     streamVirtual.addEventListener('error', function() {
-        console.error('Error carregant stream virtual');
+        console.error('Error cargando stream virtual');
         streamVirtual.classList.add('error-stream');
+    });
+
+    // Manejar cuando los streams se cargan correctamente
+    streamReal.addEventListener('load', function() {
+        console.log('Stream real cargado correctamente');
+        streamReal.classList.remove('error-stream');
+    });
+
+    streamVirtual.addEventListener('load', function() {
+        console.log('Stream virtual cargado correctamente');
+        streamVirtual.classList.remove('error-stream');
     });
 });
