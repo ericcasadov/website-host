@@ -1,8 +1,10 @@
 import cv2
 import threading
 from flask import Flask, Response
+from flask_cors import CORS  # Importar CORS
 
 app = Flask(__name__)
+CORS(app)  # Habilitar CORS para todas las rutas
 
 # Inicializar la cámara y el substractor de fondo
 cap = cv2.VideoCapture(0)
